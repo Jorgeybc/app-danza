@@ -6,10 +6,10 @@ until nc -z $DB_HOST $DB_PORT; do
   sleep 2
 done
 
-# Migraciones automáticas
+# Ejecutar migraciones
 php artisan migrate --force
 
-# Opcional: cachear config, rutas y vistas
+# Cachear configuración, rutas y vistas (opcional pero recomendado en producción)
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache

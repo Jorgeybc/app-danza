@@ -15,6 +15,7 @@ FROM php:8.2-fpm-alpine
 # Instalar dependencias de PHP
 RUN apk add --no-cache \
     bash \
+    netcat-openbsd \
     zip \
     unzip \
     curl \
