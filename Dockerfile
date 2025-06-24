@@ -1,5 +1,5 @@
-# Etapa 1: Build de Vite y dependencias
-FROM node:18-alpine AS frontend
+# Etapa 1: Build de Vite
+FROM node:18-alpine as vite-builder
 
 WORKDIR /app
 
@@ -9,45 +9,29 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Etapa 2: PHP y Laravel
+# Etapa 2: Laravel con PHP-FPM
 FROM php:8.2-fpm-alpine
 
-# Instalar dependencias de PHP
 RUN apk add --no-cache \
-    bash \
-    netcat-openbsd \
-    zip \
-    unzip \
-    curl \
-    libpng \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    oniguruma-dev \
-    libxml2-dev \
-    icu-dev \
-    zlib-dev \
-    libzip-dev \
-    mysql-client \
-    git \
-    nodejs \
-    npm \
-    supervisor \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip intl
+    bash zip unzip curl git \
+    libpng libpng-dev libjpeg-turbo-dev freetype-dev \
+    libxml2-dev oniguruma-dev zlib-dev icu-dev \
+    libzip-dev mysql-client \
+    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl intl gd
 
-# Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
 COPY . .
 
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+COPY --from=vite-builder /app/public/build ./public/build
 
-COPY --from=frontend /app/public/build ./public/build
+RUN composer install --optimize-autoloader --no-dev
 
-# Permisos y cache
-RUN chmod -R 775 storage bootstrap/cache
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
-CMD ["sh", "./start.sh"]
+CMD ["/start.sh"]
+
 
