@@ -6,21 +6,26 @@ services:
     dockerfilePath: ./Dockerfile
     startCommand: "./start.sh"
     envVars:
-      - key: APP_ENV
-        value: production
-      - key: APP_KEY
-        value: base64:wF0W2AawI8xXBpEoK4voJO0DC5CbRdyjHd0Y9D89E4I=
-      - key: DB_CONNECTION
-        value: mysql
-      - key: DB_HOST
-        value: shortline.proxy.rlwy.net
-      - key: DB_PORT
-        value: 26279
-      - key: DB_DATABASE
-        value: railway
-      - key: DB_USERNAME
-        value: root
-      - key: DB_PASSWORD
-        value: jqFAcoyneouHdTbQjipyXOGyIDkiVZMt
-      - key: ASSET_URL
-        value: https://app-danza.onrender.com
+    - key: APP_ENV
+      value: production
+    - key: APP_KEY
+      value: base64:wF0W2AawI8xXBpEoK4voJO0DC5CbRdyjHd0Y9D89E4I=
+    - key: APP_DEBUG
+      value: false
+    - key: APP_URL
+      value: https://app-danza.onrender.com
+    - key: ASSET_URL
+      value: https://app-danza.onrender.com
+
+    - key: DB_CONNECTION
+      value: mysql
+    - key: DB_HOST
+      value: shortline.proxy.rlwy.net
+    - key: DB_PORT
+      value: 26279
+    - key: DB_DATABASE
+      value: railway
+    - key: DB_USERNAME
+      value: root
+    - key: DB_PASSWORD
+      value: jqFAcoyneouHdTbQjipyXOGyIDkiVZMt
