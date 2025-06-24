@@ -3,6 +3,8 @@ services:
     name: danza-laravel
     env: docker
     plan: free
+    branch: main
+    region: oregon
     dockerfilePath: ./Dockerfile
     envVars:
       - key: APP_ENV
