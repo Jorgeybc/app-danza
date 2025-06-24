@@ -48,4 +48,5 @@ COPY --from=frontend /app/public/build ./public/build
 # Permisos y cache
 RUN chmod -R 775 storage bootstrap/cache
 
-CMD ["php-fpm"]
+CMD ["sh", "./start.sh"]
+
