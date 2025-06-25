@@ -3,6 +3,7 @@ import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+  cacheDir: 'node_modules/.vite',  // mueve caché afuera de public/build/.vite
   plugins: [
     laravel({
       input: [
@@ -10,7 +11,6 @@ export default defineConfig({
         'resources/js/app.js',
       ],
       refresh: true,
-      buildDirectory: 'build', // Carpeta dentro de public donde se colocan assets
     }),
     tailwindcss(),
   ],
@@ -22,7 +22,10 @@ export default defineConfig({
         'resources/css/app.css',
         'resources/js/app.js',
       ],
+      output: {
+        dir: 'public/build',
+      },
     },
   },
-  base: '/', // URL base para assets; cámbialo si usas CDN o dominio distinto
+  base: '/',
 });
