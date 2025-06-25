@@ -41,6 +41,7 @@ COPY default.conf /etc/nginx/conf.d/default.conf
 COPY start.sh /start.sh
 COPY supervisord.conf /etc/supervisord.conf
 
+RUN mkdir -p /run/php
 RUN chmod +x /start.sh
 
 WORKDIR /var/www/html
