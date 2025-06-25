@@ -43,6 +43,10 @@ COPY --from=composer-deps /app ./
 COPY --from=vite-builder /app/public/build ./public/build
 
 # Establecer permisos
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/HTML
+
+# Establecer permisos para Laravel
+RUN chown -R www-data:www-data storage bootstrap/cache
+
 
 EXPOSE 80

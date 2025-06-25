@@ -10,7 +10,7 @@ services:
       - key: APP_KEY
         value: base64:wF0W2AawI8xXBpEoK4voJO0DC5CbRdyjHd0Y9D89E4I=
       - key: APP_DEBUG
-        value: false
+        value: true
       - key: APP_URL
         value: https://app-danza.onrender.com
       - key: ASSET_URL
