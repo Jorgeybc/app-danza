@@ -17,4 +17,4 @@ php artisan route:cache
 php artisan view:cache
 
 echo "▶️ Iniciando supervisord..."
-exec supervisord -c /etc/supervisord.conf
+exec /usr/bin/supervisord -c /etc/supervisord.conf
