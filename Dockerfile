@@ -3,14 +3,14 @@ FROM node:20-alpine as vite-builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm install
 
 COPY . .
 RUN npm run build
 
 
-# Etapa 2: Instalar dependencias PHP con Composer
+# Etapa 2: Composer install
 FROM composer:2 as composer-deps
 
 WORKDIR /app
@@ -18,34 +18,32 @@ COPY . .
 RUN composer install --optimize-autoloader --no-dev
 
 
-# Etapa 3: PHP-FPM con Laravel
-FROM php:8.2-fpm-alpine
+# Etapa 3: PHP y NGINX
+FROM php:8.2-fpm-alpine as app
 
-# Instalar dependencias del sistema
-RUN apk add --no-cache \
-    bash zip unzip curl git \
+# Dependencias del sistema
+RUN apk add --no-cache bash nginx curl git zip unzip supervisor \
     libpng libpng-dev libjpeg-turbo-dev freetype-dev \
-    libxml2-dev oniguruma-dev zlib-dev icu-dev \
-    libzip-dev mysql-client \
-    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl intl gd
+    libxml2-dev oniguruma-dev zlib-dev icu-dev libzip-dev
 
-# Copiar Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Extensiones PHP necesarias
+RUN docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl intl gd
 
-# Crear y entrar al directorio de la app
-WORKDIR /var/www/html
+# Crear carpetas necesarias
+RUN mkdir -p /var/log/supervisor /var/www/html
 
-# Copiar código desde etapa composer
-COPY --from=composer-deps /app .
+# Copiar código desde etapas anteriores
+COPY --from=composer-deps /app /var/www/html
+COPY --from=vite-builder /app/public/build /var/www/html/public/build
+COPY default.conf /etc/nginx/conf.d/default.conf
 
-# Copiar assets generados por Vite
-COPY --from=vite-builder /app/public/build ./public/build
-
-# Copiar script de arranque
+# Copiar script de inicio y configuración de supervisord
 COPY start.sh /start.sh
+COPY supervisord.conf /etc/supervisord.conf
+
 RUN chmod +x /start.sh
 
-# Establecer permisos
-RUN chown -R www-data:www-data /var/www/html
+WORKDIR /var/www/html
 
 CMD ["/start.sh"]
+

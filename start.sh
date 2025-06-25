@@ -2,10 +2,9 @@
 
 echo "▶️ Iniciando aplicación Laravel..."
 
-# Esperar a que la base de datos esté disponible
+# Esperar a la base de datos
 until nc -z "$DB_HOST" "$DB_PORT"; do
-  echo "⏳ Esperando a la base de datos... (intento $i)"
-  i=$((i+1))
+  echo "⏳ Esperando a la base de datos..."
   sleep 2
 done
 
@@ -17,5 +16,5 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-echo "🚀 Iniciando PHP-FPM..."
-exec php-fpm
+echo "🚀 Iniciando supervisord..."
+exec /usr/bin/supervisord -c /etc/supervisord.conf
