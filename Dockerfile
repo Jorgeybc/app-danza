@@ -41,7 +41,10 @@ COPY default.conf /etc/nginx/conf.d/default.conf
 COPY start.sh /start.sh
 COPY supervisord.conf /etc/supervisord.conf
 
-RUN mkdir -p /run/php && touch /run/php/php-fpm.sock
+RUN mkdir -p /run/php
+RUN mkdir -p /var/log/nginx \
+    && touch /var/log/nginx/access.log /var/log/nginx/error.log \
+    && chmod -R 755 /var/log/nginx
 RUN chmod +x /start.sh
 
 WORKDIR /var/www/html
