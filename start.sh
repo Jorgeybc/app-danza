@@ -17,5 +17,12 @@ php artisan route:cache
 php artisan view:cache
 
 echo "🚀 Iniciando servicios..."
-php-fpm -D
-caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+
+# Ejecutar php-fpm en segundo plano
+php-fpm &
+
+# Esperar un par de segundos para evitar que Caddy falle si PHP no está listo
+sleep 2
+
+# Iniciar Caddy como proceso principal
+exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
