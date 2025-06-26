@@ -1,15 +1,21 @@
 #!/bin/sh
 
-echo "Iniciando Laravel + Caddy..."
+echo "▶️ Iniciando aplicación Laravel..."
 
-php-fpm &
+# Esperar a que la base de datos esté disponible
+until nc -z "$DB_HOST" "$DB_PORT"; do
+  echo "⏳ Esperando a la base de datos..."
+  sleep 2
+done
 
-# Esperar a que php-fpm levante
-sleep 3
-
+echo "✅ Base de datos disponible. Ejecutando migraciones..."
 php artisan migrate --force
+
+echo "🧠 Cacheando configuración..."
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+echo "🚀 Iniciando servicios..."
+php-fpm -D
+caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
