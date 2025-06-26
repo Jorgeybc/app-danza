@@ -1,53 +1,39 @@
 # Etapa 1: Build de Vite
 FROM node:20-alpine as vite-builder
-
 WORKDIR /app
-
 COPY package*.json ./
 RUN npm install
-
 COPY . .
 RUN npm run build
 
-
 # Etapa 2: Composer install
 FROM composer:2 as composer-deps
-
 WORKDIR /app
 COPY . .
 RUN composer install --optimize-autoloader --no-dev
 
+# Etapa 3: PHP-FPM + Caddy
+FROM php:8.2-fpm-alpine
 
-# Etapa 3: PHP y NGINX
-FROM php:8.2-fpm-alpine as app
-
-# Dependencias del sistema
-RUN apk add --no-cache bash nginx curl git zip unzip supervisor \
+# Dependencias
+RUN apk add --no-cache curl git zip unzip bash \
     libpng libpng-dev libjpeg-turbo-dev freetype-dev \
-    libxml2-dev oniguruma-dev zlib-dev icu-dev libzip-dev
+    libxml2-dev oniguruma-dev zlib-dev icu-dev libzip-dev \
+    supervisor \
+    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl intl gd
 
-# Extensiones PHP necesarias
-RUN docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl intl gd
+# Instalar Caddy (web server)
+RUN curl -fsSL https://get.caddyserver.com | bash -s personal
 
-# Crear carpetas necesarias
-RUN mkdir -p /var/log/supervisor /var/www/html
+# Copiar código
+WORKDIR /var/www/html
+COPY --from=composer-deps /app ./
+COPY --from=vite-builder /app/public/build ./public/build
 
-# Copiar código desde etapas anteriores
-COPY --from=composer-deps /app /var/www/html
-COPY --from=vite-builder /app/public/build /var/www/html/public/build
-COPY default.conf /etc/nginx/conf.d/default.conf
-
-# Copiar script de inicio y configuración de supervisord
+# Configuración de Caddy
+COPY Caddyfile /etc/caddy/Caddyfile
 COPY start.sh /start.sh
-COPY supervisord.conf /etc/supervisord.conf
-
-RUN mkdir -p /run/php
-RUN mkdir -p /var/log/nginx \
-    && touch /var/log/nginx/access.log /var/log/nginx/error.log \
-    && chmod -R 755 /var/log/nginx
 RUN chmod +x /start.sh
 
-WORKDIR /var/www/html
-
+EXPOSE 80
 CMD ["/start.sh"]
-
