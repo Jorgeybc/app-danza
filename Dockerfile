@@ -1,21 +1,8 @@
-# Etapa 1: Construcción de assets con Node.js
-FROM node:18 AS build
+FROM php:8.2
 
-WORKDIR /app
-
-# Copia archivos necesarios para compilar assets
-COPY package.json vite.config.js tailwind.config.js postcss.config.cjs ./
-
-COPY resources ./resources
-
-RUN npm install && npm run build
-
-# Etapa 2: Imagen base PHP-FPM
-FROM php:8.2-fpm
-
-# Instala dependencias del sistema
+# Instala dependencias necesarias
 RUN apt-get update && apt-get install -y \
-    curl zip unzip git libzip-dev libpng-dev libonig-dev \
+    unzip curl libzip-dev zip git npm nodejs \
     && docker-php-ext-install pdo pdo_mysql zip
 
 # Instala Composer
@@ -24,15 +11,20 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Establece el directorio de trabajo
 WORKDIR /var/www/html
 
-# Copia el proyecto completo
+# Copia todos los archivos del proyecto
 COPY . .
 
-# Copia los assets compilados desde el build
-COPY --from=build /app/public ./public
+# Instala dependencias de PHP
+RUN composer install --no-dev --optimize-autoloader
+
+# Instala dependencias JS y construye assets
+RUN npm install && npm run build
 
 # Da permisos adecuados
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+RUN chmod -R 775 storage bootstrap/cache
 
-# Instala dependencias PHP sin dev
-RUN composer install --no-dev --optimize-autoloader
+# Expone el puerto 8000
+EXPOSE 8000
+
+# Comando de arranque
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
