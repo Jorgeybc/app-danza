@@ -1,34 +1,37 @@
-# Imagen base con PHP-FPM
+# Etapa base PHP
 FROM php:8.2-fpm
 
-# Imagen base con PHP-FPM
-FROM php:8.2-fpm
-
-# Instalar dependencias
+# Instala extensiones necesarias
 RUN apt-get update && apt-get install -y \
-    unzip curl libzip-dev libpng-dev libonig-dev zip git gnupg2 lsb-release apt-transport-https ca-certificates \
+    nginx \
+    unzip \
+    curl \
+    zip \
+    git \
+    libzip-dev \
+    libpng-dev \
+    libonig-dev \
     && docker-php-ext-install pdo pdo_mysql zip
 
-# Instalar Caddy (versión estable compatible)
-RUN curl -fsSL https://apt.fury.io/caddy/gpg.key | gpg --dearmor -o /usr/share/keyrings/caddy-archive-keyring.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/caddy-archive-keyring.gpg] https://apt.fury.io/caddy/ /" \
-    | tee /etc/apt/sources.list.d/caddy-fury.list \
-    && apt-get update && apt-get install -y caddy
-
-# Instalar Composer
+# Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copiar el proyecto
+# Copia el código al contenedor
 WORKDIR /var/www/html
 COPY . .
 
-# Instalar dependencias de Laravel
-RUN composer install --no-dev --optimize-autoloader \
-    && chown -R www-data:www-data /var/www/html \
+# Instala dependencias de Laravel
+RUN composer install --no-dev --optimize-autoloader
+
+# Copia la configuración de Nginx
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Da permisos adecuados
+RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
 
-# Expone el puerto 80 (usado por Caddy)
+# Expone el puerto
 EXPOSE 80
 
-# Comando de inicio para Caddy
-CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+# Comando por defecto
+CMD service php-fpm start && nginx -g 'daemon off;'
