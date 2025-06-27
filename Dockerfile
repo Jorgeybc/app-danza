@@ -1,41 +1,27 @@
-# Etapa 1: Build de Vite
-FROM node:20-alpine as vite-builder
+FROM php:8.2-fpm
 
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
+# Instala dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    libzip-dev zip unzip curl git \
+    && docker-php-ext-install pdo pdo_mysql zip
+
+# Instala Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Establece el directorio de trabajo
+WORKDIR /var/www
+
+# Copia archivos
 COPY . .
-RUN npm run build
 
-# Etapa 2: Composer install
-FROM composer:2 as composer-deps
+# Instala dependencias de Laravel
+RUN composer install --no-interaction --no-dev --prefer-dist
 
-WORKDIR /app
-COPY . .
-RUN composer install --optimize-autoloader --no-dev
+# Da permisos a storage y bootstrap
+RUN chmod -R 775 storage bootstrap/cache
 
-# Etapa 3: Laravel + Caddy
-FROM php:8.2-fpm-alpine
+# Expone el puerto 8000
+EXPOSE 8000
 
-# Instalar dependencias
-RUN apk add --no-cache bash curl git zip unzip icu-dev libxml2-dev \
-    libpng-dev libjpeg-turbo-dev freetype-dev zlib-dev libzip-dev \
-    oniguruma-dev caddy
-
-RUN docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl intl gd
-
-# Crear carpetas necesarias
-RUN mkdir -p /var/www/html /run/php
-
-# Copiar código desde etapas anteriores
-COPY --from=composer-deps /app /var/www/html
-COPY --from=vite-builder /app/public/build /var/www/html/public/build
-
-# Copiar Caddy y script
-COPY Caddyfile /etc/caddy/Caddyfile
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-
-WORKDIR /var/www/html
-
-CMD ["/start.sh"]
+# Comando de inicio
+CMD ["sh", "start.sh"]

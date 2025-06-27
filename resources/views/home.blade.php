@@ -13,7 +13,7 @@
 
     <div class="min-h-screen flex flex-col items-center justify-center p-6">
         <div class="bg-white shadow-2xl rounded-2xl p-10 max-w-5xl mx-auto w-full text-center">
-            <img src="{{ asset('images/ilustraciondanza.jpg') }}" alt="Imagen de Danza"
+            <img src="{{ asset('images/ilustraciondanza.JPG') }}" alt="Imagen de Danza"
      class="w-full h-64 object-cover rounded-xl mb-6 shadow-md">
 
             <h1 class="text-4xl font-bold text-blue-400 mb-4" 
@@ -70,42 +70,6 @@
     </div>
   </div>
 
-<!-- Newsletter -->
-<section class="bg-blue-50 py-12 px-4" id="newsletter">
-    <div class="max-w-2xl mx-auto text-center" data-aos="fade-up">
-        <h2 class="text-3xl font-bold text-gray-800 mb-4">Suscríbete</h2>
-        <p class="text-gray-600 mb-8">
-            Recibe actualizaciones sobre eventos, promociones y novedades de danza directamente en tu correo.
-        </p>
-
-       
-
-        {{-- Formulario --}}
-        <form method="POST" action="{{ route('subscribe') }}" class="flex flex-col items-center gap-4 mt-6">
-            @csrf
-            <input type="email" name="email" placeholder="Ingresa tu correo"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
-
-            <button type="submit"
-                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition">
-                Suscribirme
-            </button>
-        </form>
-{{-- Toast flotante de éxito --}}
-@if (session('success'))
-    <div id="toast-success" class="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50">
-        {{ session('success') }}
-    </div>
-@endif
-
-{{-- Toast flotante de error --}}
-@if (session('error'))
-    <div id="toast-error" class="fixed bottom-5 right-5 bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg z-50">
-        {{ session('error') }}
-    </div>
-@endif
-
-
 <footer class="bg-gray-800 text-white py-8 mt-10">
   <div class="max-w-6xl mx-auto px-4 text-center">
     <h3 class="text-xl font-semibold mb-4" data-aos="fade-up">Síguenos en redes sociales</h3>
@@ -146,16 +110,6 @@
     <p class="mt-6 text-sm text-gray-400">&copy; 2025 Danza Moderna. Todos los derechos reservados.</p>
   </div>
 </footer>
-<script>
-    // Oculta los toasts después de 4 segundos
-    setTimeout(() => {
-        document.querySelectorAll('#toast-success, #toast-error').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transition = 'opacity 0.5s ease';
-            setTimeout(() => el.remove(), 500);
-        });
-    }, 8000);
-</script>
 
 </body>
 </html>
