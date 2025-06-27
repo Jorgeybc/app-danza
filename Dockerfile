@@ -1,33 +1,37 @@
-# Etapa 1: Backend Laravel con PHP-FPM
-FROM php:8.2-fpm as backend
+# Etapa 1: Construcción de assets con Node.js
+FROM node:18 AS build
 
-# Dependencias necesarias
+WORKDIR /app
+
+# Copia archivos necesarios para compilar assets
+COPY package.json vite.config.js tailwind.config.js postcss.config.js ./
+COPY resources ./resources
+
+RUN npm install && npm run build
+
+# Etapa 2: Imagen base PHP-FPM
+FROM php:8.2-fpm
+
+# Instala dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    unzip curl libzip-dev libpng-dev libonig-dev zip git \
+    curl zip unzip git libzip-dev libpng-dev libonig-dev \
     && docker-php-ext-install pdo pdo_mysql zip
 
 # Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copia código fuente
+# Establece el directorio de trabajo
 WORKDIR /var/www/html
+
+# Copia el proyecto completo
 COPY . .
 
-# Instala dependencias Laravel
+# Copia los assets compilados desde el build
+COPY --from=build /app/public ./public
+
+# Da permisos adecuados
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
+# Instala dependencias PHP sin dev
 RUN composer install --no-dev --optimize-autoloader
-
-# Da permisos a Laravel
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage
-
-
-# Etapa 2: Caddy + PHP
-FROM caddy:2-builder AS builder
-
-# Etapa final: Contenedor de aplicación con Caddy y PHP-FPM
-FROM caddy:2
-
-COPY --from=backend /var/www/html /var/www/html
-COPY Caddyfile /etc/caddy/Caddyfile
-
-# Caddy servirá los archivos y redirigirá peticiones PHP a php-fpm
