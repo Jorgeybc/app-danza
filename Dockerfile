@@ -4,7 +4,8 @@ FROM node:18 AS build
 WORKDIR /app
 
 # Copia archivos necesarios para compilar assets
-COPY package.json vite.config.js tailwind.config.js postcss.config.js ./
+COPY package.json vite.config.js tailwind.config.js postcss.config.cjs ./
+
 COPY resources ./resources
 
 RUN npm install && npm run build
