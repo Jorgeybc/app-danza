@@ -1,27 +1,26 @@
-FROM php:8.2-fpm
+# Etapa 1: PHP-FPM + Composer
+FROM php:8.2-fpm as php
 
-# Instala dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip curl git \
+    unzip curl libzip-dev libpng-dev libonig-dev zip git \
     && docker-php-ext-install pdo pdo_mysql zip
 
-# Instala Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Establece el directorio de trabajo
-WORKDIR /var/www
-
-# Copia archivos
+WORKDIR /var/www/html
 COPY . .
 
-# Instala dependencias de Laravel
-RUN composer install --no-interaction --no-dev --prefer-dist
+RUN composer install --no-dev --optimize-autoloader \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage
 
-# Da permisos a storage y bootstrap
-RUN chmod -R 775 storage bootstrap/cache
+# Etapa 2: Caddy (servidor)
+FROM caddy:2
 
-# Expone el puerto 8000
-EXPOSE 8000
+# Copiar Caddyfile
+COPY Caddyfile /etc/caddy/Caddyfile
 
-# Comando de inicio
-CMD ["sh", "start.sh"]
+# Copiar el código del proyecto Laravel
+COPY --from=php /var/www/html /var/www/html
+
+# Caddy sirve en :80 por defecto
