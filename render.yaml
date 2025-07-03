@@ -1,9 +1,10 @@
 services:
-  - type: pserv
-    name: php
+  - type: web
+    name: danza-app
     env: docker
     plan: free
-    dockerfilePath: ./Dockerfile.php
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
     envVars:
       - key: APP_ENV
         value: production
@@ -11,5 +12,8 @@ services:
         value: false
       - key: APP_URL
         value: https://danza-app.onrender.com
-    dependsOn:
-      - php
+
+  - type: pserv
+    name: php
+    env: docker
+    dockerfilePath: ./Dockerfile.php
