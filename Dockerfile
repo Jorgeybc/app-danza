@@ -25,13 +25,16 @@ RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm run build
 
 # Permisos
-RUN chmod -R 775 storage bootstrap/cache
+RUN chmod -R ug+rwx storage bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache
+
 
 # Configurar supervisord
 COPY ./supervisord.conf /etc/supervisord.conf
 COPY ./Caddyfile /etc/Caddyfile
 
 EXPOSE 80
+
 
 
 
