@@ -13,7 +13,7 @@
 
     <div class="min-h-screen flex flex-col items-center justify-center p-6">
         <div class="bg-white shadow-2xl rounded-2xl p-10 max-w-5xl mx-auto w-full text-center">
-            <img src="{{ asset('images/ilustraciondanza.JPG') }}" alt="Imagen de Danza"
+            <img src="{{ asset('images/ilustraciondanza.jpg') }}" alt="Imagen de Danza"
      class="w-full h-64 object-cover rounded-xl mb-6 shadow-md">
 
             <h1 class="text-4xl font-bold text-blue-400 mb-4" 
