@@ -1,20 +1,22 @@
-#!/bin/sh
+#!/bin/bash
 
-# Generar APP_KEY si no existe
-if [ ! -f ".env" ]; then
-  cp .env.example .env
-fi
-
+# Limpiar cachés (si existían)
 php artisan config:clear
 php artisan route:clear
 php artisan view:clear
-php artisan key:generate --force
 
-# Iniciar servidor Laravel
-php artisan serve --host=0.0.0.0 --port=8000
+# Generar clave si no existe
+if [ -z "$APP_KEY" ]; then
+  echo "APP_KEY not found in environment. Exiting..."
+  exit 1
+fi
 
-# Migraciones
+# Cachear configuración
+php artisan config:cache
+
+# Migraciones forzadas
 php artisan migrate --force
 
-# Iniciar supervisord (caddy + php-fpm)
+# Iniciar supervisord (Caddy + PHP-FPM)
 exec /usr/bin/supervisord -c /etc/supervisord.conf
+#
