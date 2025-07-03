@@ -1,20 +1,13 @@
-FROM php:8.2-fpm
+FROM caddy:2
 
-RUN apt-get update && apt-get install -y \
-    unzip curl libzip-dev zip git npm nodejs \
-    && docker-php-ext-install pdo pdo_mysql zip
+# Copia el archivo de configuración de Caddy
+COPY Caddyfile /etc/caddy/Caddyfile
 
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
+# Establece el directorio de trabajo
 WORKDIR /var/www/html
 
+# Copia todos los archivos del proyecto
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
-RUN npm install && npm run build
-
-RUN chmod -R 775 storage bootstrap/cache
-
-EXPOSE 9000
-
-CMD ["php-fpm"]
+# Expone el puerto 80 que Render detecta automáticamente
+EXPOSE 80
