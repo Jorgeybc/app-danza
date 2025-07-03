@@ -1,10 +1,6 @@
-FROM caddy:2
-
-# Establece el directorio de trabajo
+FROM caddy:alpine
 WORKDIR /srv
-
-# Copia tu proyecto Laravel (solo lo necesario para servirlo)
 COPY . /srv
-
-# Copia el archivo Caddyfile al contenedor
 COPY Caddyfile /etc/caddy/Caddyfile
+EXPOSE 80
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
