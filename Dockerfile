@@ -33,7 +33,6 @@ COPY ./Caddyfile /etc/Caddyfile
 
 EXPOSE 80
 
-RUN ln -sf $(which node) /usr/bin/node
 
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
