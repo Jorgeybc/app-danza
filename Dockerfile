@@ -9,11 +9,11 @@ RUN apt-get update && apt-get install -y \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Instala Caddy de forma oficial (recomendado en Render)
-RUN apt-get update && apt-get install -y debian-keyring debian-archive-keyring curl gnupg && \
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-archive-keyring.gpg && \
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list && \
+RUN apt-get update && apt-get install -y curl gnupg2 ca-certificates lsb-release && \
+    curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/gpg.key | apt-key add - && \
+    curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/deb/debian.any-version.list \
+      -o /etc/apt/sources.list.d/caddy-stable.list && \
     apt-get update && apt-get install -y caddy
-
 
 # Establecer directorio de trabajo
 WORKDIR /var/www/html
