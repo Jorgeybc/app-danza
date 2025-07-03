@@ -12,6 +12,12 @@ services:
         value: false
       - key: APP_URL
         value: https://danza-app.onrender.com
-buildCommand: |
-  npm install
-  npm run build
+    buildCommand: |
+      npm install
+      npm run build
+
+  - type: pserv
+    name: php
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.php
