@@ -8,9 +8,12 @@ RUN apt-get update && apt-get install -y \
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Instalar Caddy
-RUN curl -s https://caddyserver.com/api/download?os=linux&arch=amd64 | tar -xz -C /usr/bin caddy && \
-    chmod +x /usr/bin/caddy
+# Instala Caddy de forma oficial (recomendado en Render)
+RUN apt-get update && apt-get install -y debian-keyring debian-archive-keyring curl gnupg && \
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-archive-keyring.gpg && \
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list && \
+    apt-get update && apt-get install -y caddy
+
 
 # Establecer directorio de trabajo
 WORKDIR /var/www/html
@@ -30,5 +33,8 @@ COPY ./supervisord.conf /etc/supervisord.conf
 COPY ./Caddyfile /etc/Caddyfile
 
 EXPOSE 80
+
+RUN ln -sf $(which node) /usr/bin/node
+
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
