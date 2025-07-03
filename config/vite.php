@@ -1,7 +1,5 @@
 <?php
 
 return [
-
-    'manifest_path' => public_path('build/manifest.json'),
-
+    'manifest' => 'build/.vite/manifest.json', // ✅ Aquí le dices a Laravel dónde buscar
 ];
