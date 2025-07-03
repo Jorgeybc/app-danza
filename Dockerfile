@@ -34,8 +34,8 @@ COPY ./supervisord.conf /etc/supervisord.conf
 COPY ./Caddyfile /etc/Caddyfile
 
 EXPOSE 80
-
-
-
+RUN touch database/database.sqlite && \
+    chmod -R 775 database && \
+    chown -R www-data:www-data database
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
