@@ -38,4 +38,11 @@ RUN touch database/database.sqlite && \
     chmod -R 775 database && \
     chown -R www-data:www-data database
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+
+COPY ./start.sh /start.sh
+RUN chmod +x /start.sh
+
+
+
+CMD ["/start.sh"]
+

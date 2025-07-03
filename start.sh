@@ -12,3 +12,9 @@ php artisan key:generate --force
 
 # Iniciar servidor Laravel
 php artisan serve --host=0.0.0.0 --port=8000
+
+# Migraciones
+php artisan migrate --force
+
+# Iniciar supervisord (caddy + php-fpm)
+exec /usr/bin/supervisord -c /etc/supervisord.conf
