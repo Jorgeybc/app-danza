@@ -1,38 +1,34 @@
-FROM caddy:2 AS caddy
-
-FROM node:18 AS node
-
 FROM php:8.2-fpm
 
-# Instala dependencias necesarias
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    unzip curl libzip-dev zip git npm \
+    unzip curl libzip-dev zip git npm nodejs supervisor \
     && docker-php-ext-install pdo pdo_mysql zip
 
-# Instala Composer
+# Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copia Caddy desde la imagen oficial
-COPY --from=caddy /usr/bin/caddy /usr/bin/caddy
+# Instalar Caddy
+RUN curl -s https://caddyserver.com/api/download?os=linux&arch=amd64 | tar -xz -C /usr/bin caddy && \
+    chmod +x /usr/bin/caddy
 
-# Establece el directorio de trabajo
+# Establecer directorio de trabajo
 WORKDIR /var/www/html
 
-# Copia todo el proyecto
+# Copiar archivos del proyecto
 COPY . .
 
-# Instala dependencias
+# Instalar dependencias de PHP y JS
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm run build
 
-# Permisos necesarios
+# Permisos
 RUN chmod -R 775 storage bootstrap/cache
 
-# Copia el Caddyfile
-COPY Caddyfile /etc/caddy/Caddyfile
+# Configurar supervisord
+COPY ./supervisord.conf /etc/supervisord.conf
+COPY ./Caddyfile /etc/Caddyfile
 
-# Expone el puerto 80
 EXPOSE 80
 
-# Comando de inicio
-CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
