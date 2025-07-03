@@ -19,4 +19,3 @@ php artisan migrate --force
 
 # Iniciar supervisord (Caddy + PHP-FPM)
 exec /usr/bin/supervisord -c /etc/supervisord.conf
-#
