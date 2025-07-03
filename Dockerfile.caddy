@@ -1,0 +1,10 @@
+FROM caddy:2
+
+# Establece el directorio de trabajo
+WORKDIR /srv
+
+# Copia tu proyecto Laravel (solo lo necesario para servirlo)
+COPY . /srv
+
+# Copia el archivo Caddyfile al contenedor
+COPY Caddyfile /etc/caddy/Caddyfile
