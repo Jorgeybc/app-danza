@@ -1,4 +1,10 @@
 services:
+  - type: pserv
+    name: php
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+
   - type: web
     name: danza-app
     env: docker
@@ -11,7 +17,3 @@ services:
         value: false
       - key: APP_URL
         value: https://danza-app.onrender.com
-  - type: pserv
-    name: php
-    env: docker
-    dockerfilePath: ./Dockerfile
