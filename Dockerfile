@@ -8,11 +8,10 @@ RUN apt-get update && apt-get install -y \
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Instala Caddy de forma oficial (recomendado en Render)
-RUN apt-get update && apt-get install -y curl gnupg2 ca-certificates lsb-release && \
-    curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/gpg.key | apt-key add - && \
-    curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/deb/debian.any-version.list \
-      -o /etc/apt/sources.list.d/caddy-stable.list && \
+# Instalar Caddy (versión estable desde repositorios de Debian)
+RUN apt-get update && apt-get install -y debian-keyring debian-archive-keyring curl gnupg2 && \
+    curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/gpg.key | gpg --dearmor -o /usr/share/keyrings/caddy.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/caddy.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main" > /etc/apt/sources.list.d/caddy.list && \
     apt-get update && apt-get install -y caddy
 
 # Establecer directorio de trabajo
